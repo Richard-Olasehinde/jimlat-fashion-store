@@ -65,40 +65,41 @@ const Cart = {
     return true;
   },
 
-  removeItem(productId, variant) {
-    if (variant === undefined) variant = null;
+ removeItem(productId) {
+  this.items = this.items.filter(function(item) {
+    return item.productId !== productId;
+  });
+  this.notify();
+  this.showNotification('Item removed from cart', 'info');
+},
 
-    this.items = this.items.filter(item =>
-      !(item.productId === productId &&
-        JSON.stringify(item.variant) === JSON.stringify(variant))
-    );
-    this.notify();
-    this.showNotification('Item removed from cart', 'info');
-  },
 
   updateQuantity(productId, quantity, variant) {
-    if (variant === undefined) variant = null;
+  var item = null;
 
-    const item = this.items.find(item =>
-      item.productId === productId &&
-      JSON.stringify(item.variant) === JSON.stringify(variant)
-    );
-
-    if (!item) return;
-
-    if (quantity <= 0) {
-      this.removeItem(productId, variant);
-      return;
+  for (var i = 0; i < this.items.length; i++) {
+    if (this.items[i].productId === productId) {
+      item = this.items[i];
+      break;
     }
+  }
 
-    if (quantity > item.stock) {
-      this.showNotification('Only ' + item.stock + ' available in stock', 'warning');
-      return;
-    }
+  if (!item) return;
 
-    item.quantity = quantity;
-    this.notify();
-  },
+  if (quantity <= 0) {
+    this.removeItem(productId);
+    return;
+  }
+
+  if (quantity > item.stock) {
+    this.showNotification('Only ' + item.stock + ' available in stock', 'warning');
+    return;
+  }
+
+  item.quantity = quantity;
+  this.notify();
+},
+
 
   clear() {
     this.items = [];

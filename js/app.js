@@ -381,56 +381,42 @@ const App = {
     if (footer) footer.style.display = 'flex';
 
     // Render each cart item
-    body.innerHTML = items.map(item => `
-      <div class="cart-item" data-id="${item.productId}">
+body.innerHTML = items.map(function(item) {
+  return ''
+    + '<div class="cart-item" data-id="' + item.productId + '">'
+    + '  <a href="product-detail.html?id=' + item.productId + '"'
+    + '     class="cart-item-image">'
+    + '    <img src="' + item.image + '" alt="' + item.name + '">'
+    + '  </a>'
+    + '  <div class="cart-item-details">'
+    + '    <a href="product-detail.html?id=' + item.productId + '"'
+    + '       class="cart-item-name">'
+    +        item.name
+    + '    </a>'
+    + (item.variant
+        ? '<p class="cart-item-variant">'
+          + Object.values(item.variant).join(' · ')
+          + '</p>'
+        : '')
+    + '    <p class="cart-item-price">'
+    +        Cart.formatPrice(item.price)
+    + '    </p>'
+    + '    <div class="quantity-control">'
+    + '      <button class="quantity-btn" onclick="App.changeQty(\'' + item.productId + '\', -1)">−</button>'
+    + '      <span class="quantity-value">' + item.quantity + '</span>'
+    + '      <button class="quantity-btn" onclick="App.changeQty(\'' + item.productId + '\', 1)">+</button>'
+    + '    </div>'
+    + '  </div>'
+    + '  <div class="cart-item-right">'
+    + '    <button class="cart-item-remove" onclick="App.removeItem(\'' + item.productId + '\')">×</button>'
+    + '    <p class="cart-item-total">'
+    +        Cart.formatPrice(item.price * item.quantity)
+    + '    </p>'
+    + '  </div>'
+    + '</div>';
+}).join('');
 
-        <a href="product-detail.html?id=${item.productId}"
-           class="cart-item-image">
-          <img src="${item.image}" alt="${item.name}">
-        </a>
 
-        <div class="cart-item-details">
-          <a href="product-detail.html?id=${item.productId}"
-             class="cart-item-name">
-            ${item.name}
-          </a>
-
-          ${item.variant ? `
-            <p class="cart-item-variant">
-              ${Object.values(item.variant).join(' · ')}
-            </p>
-          ` : ''}
-
-          <p class="cart-item-price">
-            ${Cart.formatPrice(item.price)}
-          </p>
-
-          <div class="quantity-control">
-            <button class="quantity-btn"
-              onclick="App.changeQuantity('${item.productId}', ${item.quantity - 1})">
-              −
-            </button>
-            <span class="quantity-value">${item.quantity}</span>
-            <button class="quantity-btn"
-              onclick="App.changeQuantity('${item.productId}', ${item.quantity + 1})">
-              +
-            </button>
-          </div>
-        </div>
-
-        <div class="cart-item-right">
-          <button class="cart-item-remove"
-            onclick="App.removeCartItem('${item.productId}')"
-            aria-label="Remove item">
-            ×
-          </button>
-          <p class="cart-item-total">
-            ${Cart.formatPrice(item.price * item.quantity)}
-          </p>
-        </div>
-
-      </div>
-    `).join('');
 
     // Update summary in footer
     const subtotalEl = document.getElementById('cartSubtotal');
@@ -452,13 +438,18 @@ const App = {
 
   // Called by the + and - buttons in the cart
   // Has to be on App object so onclick="" can find it
-  changeQuantity(productId, newQuantity) {
-    Cart.updateQuantity(productId, newQuantity);
-  },
-
-  removeCartItem(productId) {
-    Cart.removeItem(productId);
-  },
+ changeQty(productId, change) 
+ {var items = Cart.getItems();    
+  for (var i = 0; i < items.length; i++) 
+    {     if (items[i].productId === productId) 
+      {       var newQty = items[i].quantity + change;      
+         Cart.updateQuantity(productId, newQty);       
+         return;     
+        }   
+      } 
+    },  
+ removeItem(productId) 
+ {Cart.removeItem(productId);},
 
   // ── ADD TO CART ──────────────────────────
   // Called from product cards and detail page
@@ -1799,67 +1790,50 @@ renderCartPage() {
   }
 
   // Build items HTML
-  const itemsHTML = items.map(item => {
-    const lineTotal   = item.price * item.quantity;
-    const hasDiscount = item.originalPrice > item.price;
+  var itemsHTML = items.map(function(item) {
+  var lineTotal   = item.price * item.quantity;
+  var hasDiscount = item.originalPrice > item.price;
 
-    return `
-      <div class="cart-page-item" data-id="${item.productId}">
-
-        <a href="product-detail.html?id=${item.productId}"
-           class="cart-page-item-image">
-          <img src="${item.image}" alt="${item.name}">
-        </a>
-
-        <div class="cart-page-item-info">
-          <a href="product-detail.html?id=${item.productId}"
-             class="cart-page-item-name">
-            ${item.name}
-          </a>
-
-          ${item.variant ? `
-            <p class="cart-page-item-variant">
-              ${Object.values(item.variant).join(' · ')}
-            </p>
-          ` : ''}
-
-          <p class="cart-page-item-price">
-            ${Cart.formatPrice(item.price)}
-            ${hasDiscount ? `
-              <span class="cart-page-item-original-price">
-                ${Cart.formatPrice(item.originalPrice)}
-              </span>
-            ` : ''}
-          </p>
-        </div>
-
-        <div class="cart-page-item-quantity">
-          <div class="quantity-control">
-            <button class="quantity-btn"
-                    onclick="App.cartPageUpdateQty('${item.productId}', ${item.quantity - 1})">
-              −
-            </button>
-            <span class="quantity-value">${item.quantity}</span>
-            <button class="quantity-btn"
-                    onclick="App.cartPageUpdateQty('${item.productId}', ${item.quantity + 1})">
-              +
-            </button>
-          </div>
-        </div>
-
-        <div class="cart-page-item-total">
-          ${Cart.formatPrice(lineTotal)}
-        </div>
-
-        <button class="cart-page-item-remove"
-                onclick="App.cartPageRemove('${item.productId}')"
-                aria-label="Remove ${item.name}">
-          ×
-        </button>
-
-      </div>
-    `;
-  }).join('');
+  return ''
+    + '<div class="cart-page-item" data-id="' + item.productId + '">'
+    + '  <a href="product-detail.html?id=' + item.productId + '"'
+    + '     class="cart-page-item-image">'
+    + '    <img src="' + item.image + '" alt="' + item.name + '">'
+    + '  </a>'
+    + '  <div class="cart-page-item-info">'
+    + '    <a href="product-detail.html?id=' + item.productId + '"'
+    + '       class="cart-page-item-name">'
+    +        item.name
+    + '    </a>'
+    + (item.variant
+        ? '<p class="cart-page-item-variant">'
+          + Object.values(item.variant).join(' · ')
+          + '</p>'
+        : '')
+    + '    <p class="cart-page-item-price">'
+    +        Cart.formatPrice(item.price)
+    + (hasDiscount
+        ? '<span class="cart-page-item-original-price">'
+          + Cart.formatPrice(item.originalPrice)
+          + '</span>'
+        : '')
+    + '    </p>'
+    + '  </div>'
+    + '  <div class="cart-page-item-quantity">'
+    + '    <div class="quantity-control">'
+    + '      <button class="quantity-btn" onclick="App.changeQty(\'' + item.productId + '\', -1)">−</button>'
+    + '      <span class="quantity-value">' + item.quantity + '</span>'
+    + '      <button class="quantity-btn" onclick="App.changeQty(\'' + item.productId + '\', 1)">+</button>'
+    + '    </div>'
+    + '  </div>'
+    + '  <div class="cart-page-item-total">'
+    +      Cart.formatPrice(lineTotal)
+    + '  </div>'
+    + '  <button class="cart-page-item-remove"'
+    + '    onclick="App.removeItem(\'' + item.productId + '\')"'
+    + '    aria-label="Remove">×</button>'
+    + '</div>';
+}).join('');
 
   // Build summary HTML
   const summaryHTML = `
