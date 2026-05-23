@@ -637,7 +637,7 @@ p {
   z-index: 1000;
   /* Above overlay */
   display: flex;
-  flex-direction: column;
+  flex-direction:column;
   /* Stack header, body, footer vertically */
 
   /* Hidden off screen to the right */
