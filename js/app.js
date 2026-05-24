@@ -2145,7 +2145,7 @@ validateAllFields() {
   return isValid;
 },
 
-submitCheckout() {
+async submitCheckout() {
   // Validate all fields first
   if (!this.validateAllFields()) {
     Cart.showNotification('Please fill in all required fields', 'error');
@@ -2183,6 +2183,12 @@ submitCheckout() {
 
   StorageManager.saveOrder(order);
   StorageManager.saveLastOrder(order);
+
+  var firebaseSaved = await
+  FirestoreManager.saveOrder(order);
+   console.log ("Firebase save result:", firebaseSaved);
+
+   await EmailManager.sendOrderConfirmation(order);
 
   // Show loading state on button
   const btn = document.getElementById('placeOrderBtn');
