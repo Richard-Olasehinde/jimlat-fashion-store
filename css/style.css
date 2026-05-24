@@ -2050,6 +2050,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  overflow: auto;
 }
 
 .filters-header {
@@ -2128,6 +2129,7 @@ p {
 }
 
 .price-input {
+  flex: 1;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--gray-300);
   margin-bottom: 2px;
@@ -2139,9 +2141,6 @@ p {
   transition: border-color var(--transition-fast);
   
 }
-.btn btn-outline btn-block clear-filters-btn{
-    padding-bottom: 10px;
-  }
 
 .price-input:focus {
   border-color: var(--primary);
