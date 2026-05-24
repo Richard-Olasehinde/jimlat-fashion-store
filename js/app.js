@@ -2562,40 +2562,57 @@ bindWishlistEvents() {
 },
 
 initTrackingPage() {
-  var self     = this;
-  var input    = document.getElementById('trackingInput');
-  var btn      = document.getElementById('trackingBtn');
-  var errorEl  = document.getElementById('trackingError');
+  var self    = this;
+  var input   = document.getElementById('trackingInput');
+  var btn     = document.getElementById('trackingBtn');
+  var errorEl = document.getElementById('trackingError');
 
   if (!input || !btn) return;
 
-  // Check if order ID was passed in URL
+  // Only auto-fill if URL has a REAL order ID
   var urlOrderId = this.getUrlParam('order');
-  if (urlOrderId) {
+  if (urlOrderId && urlOrderId.length > 0) {
     input.value = urlOrderId;
     this.trackOrder(urlOrderId);
   }
 
-  // Track button click
   btn.addEventListener('click', function() {
     var orderId = input.value.trim();
 
-    if (!orderId) {
-      errorEl.textContent = 'Please enter an order number';
+    // Clear any previous error
+    if (errorEl) errorEl.textContent = '';
+
+    // Validate before doing anything
+    if (!orderId || orderId.length === 0) {
+      if (errorEl) errorEl.textContent = 'Please enter your order number';
       input.classList.add('invalid');
+      input.focus();
       return;
     }
 
-    errorEl.textContent = '';
+    // Must start with ORD-
+    if (!orderId.startsWith('ORD-')) {
+      if (errorEl) errorEl.textContent = 'Order numbers start with ORD-';
+      input.classList.add('invalid');
+      input.focus();
+      return;
+    }
+
     input.classList.remove('invalid');
     self.trackOrder(orderId);
   });
 
-  // Enter key
+  // Enter key support
   input.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       btn.click();
     }
+  });
+
+  // Clear error when user starts typing
+  input.addEventListener('input', function() {
+    input.classList.remove('invalid');
+    if (errorEl) errorEl.textContent = '';
   });
 },
 
