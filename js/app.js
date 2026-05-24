@@ -3279,7 +3279,295 @@ addSwipeClose(element, direction, callback) {
       callback();
     }
   });
- }
+ },
+ async trackOrder(orderId) {
+  var resultEl = document.getElementById('trackingResult');
+  if (!resultEl) return;
+
+  // Show loading
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = ''
+    + '<div style="text-align:center;padding:40px;">'
+    + '  <p style="color:var(--gray-400)">Looking up your order...</p>'
+    + '</div>';
+
+  var order = null;
+
+  // Check Firebase first
+  try {
+    order = await FirestoreManager.getOrderById(orderId);
+  } catch (error) {
+    console.error('Firebase lookup failed:', error);
+  }
+
+  // Fallback to localStorage
+  if (!order) {
+    var localOrders = StorageManager.getOrders();
+    for (var i = 0; i < localOrders.length; i++) {
+      if (localOrders[i].id === orderId) {
+        order = localOrders[i];
+        break;
+      }
+    }
+  }
+
+  // Final fallback to last order
+  if (!order) {
+    var lastOrder = StorageManager.getLastOrder();
+    if (lastOrder && lastOrder.id === orderId) {
+      order = lastOrder;
+    }
+  }
+
+  // Not found
+  if (!order) {
+    resultEl.innerHTML = ''
+      + '<div class="tracking-not-found">'
+      + '  <div class="tracking-not-found-icon">🔍</div>'
+      + '  <h3>Order not found</h3>'
+      + '  <p>We could not find an order with that number.<br>'
+      + '     Make sure you typed it correctly.<br>'
+      + '     Order numbers look like: ORD-1234567890</p>'
+      + '  <a href="https://wa.me/2347038820430" target="_blank"'
+      + '     class="btn btn-primary" style="margin-top:16px">'
+      + '     Contact on WhatsApp</a>'
+      + '</div>';
+    return;
+  }
+
+  // Get status
+  var status = order.status || 'pending';
+
+  // Format date
+  var orderDate  = new Date(order.date);
+  var dateString = orderDate.toLocaleDateString('en-NG', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
+  var timeString = orderDate.toLocaleTimeString('en-NG', {
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  // Build items summary
+  var itemsHTML = '';
+  if (order.items && order.items.length > 0) {
+    for (var j = 0; j < order.items.length; j++) {
+      var item = order.items[j];
+      var variantText = '';
+      if (item.variant) {
+        var vals = [];
+        for (var key in item.variant) {
+          vals.push(item.variant[key]);
+        }
+        if (vals.length > 0) variantText = ' · ' + vals.join(', ');
+      }
+
+      itemsHTML += ''
+        + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;">'
+        + '  <span style="color:var(--gray-600)">'
+        +      item.name + variantText + ' × ' + item.quantity
+        + '  </span>'
+        + '  <span style="font-weight:600;color:var(--gray-800)">'
+        +      Cart.formatPrice(item.price * item.quantity)
+        + '  </span>'
+        + '</div>';
+    }
+  }
+
+  // Status display settings
+  var statusConfig = {
+    pending: {
+      label:      'Order Placed',
+      color:      'var(--warning)',
+      background: '#fef3c7',
+      icon:       '⏳',
+      message:    'Your order has been received. We will contact you on WhatsApp to confirm.'
+    },
+    shipped: {
+      label:      'Shipped',
+      color:      'var(--info)',
+      background: '#dbeafe',
+      icon:       '🚚',
+      message:    'Your order has been shipped and is on its way to you.'
+    },
+    delivered: {
+      label:      'Delivered',
+      color:      'var(--success)',
+      background: '#d1fae5',
+      icon:       '✅',
+      message:    'Your order has been delivered. Thank you for shopping with us!'
+    },
+    cancelled: {
+      label:      'Cancelled',
+      color:      'var(--error)',
+      background: '#fee2e2',
+      icon:       '✕',
+      message:    'This order has been cancelled. If you have questions, contact us on WhatsApp.'
+    }
+  };
+
+  var currentStatus = statusConfig[status] || statusConfig.pending;
+
+  // Build timeline
+  var steps = [
+    { key: 'pending',   label: 'Order Placed', icon: '📦' },
+    { key: 'shipped',   label: 'Shipped',      icon: '🚚' },
+    { key: 'delivered', label: 'Delivered',     icon: '✅' }
+  ];
+
+  var statusOrder = ['pending', 'shipped', 'delivered'];
+  var currentIndex = statusOrder.indexOf(status);
+  if (currentIndex === -1) currentIndex = 0;
+
+  var timelineHTML = '';
+  for (var k = 0; k < steps.length; k++) {
+    var step      = steps[k];
+    var stepState = '';
+
+    if (status === 'cancelled') {
+      stepState = 'cancelled-step';
+    } else if (k < currentIndex) {
+      stepState = 'completed';
+    } else if (k === currentIndex) {
+      stepState = 'current';
+    } else {
+      stepState = 'pending-step';
+    }
+
+    var circleStyle = '';
+    var titleStyle  = '';
+    var lineStyle   = '';
+
+    if (stepState === 'completed') {
+      circleStyle = 'background:var(--success);border-color:var(--success);color:white;';
+      titleStyle  = 'color:var(--gray-800);';
+      lineStyle   = 'background:var(--success);';
+    } else if (stepState === 'current') {
+      circleStyle = 'background:var(--primary);border-color:var(--primary);color:white;';
+      titleStyle  = 'color:var(--gray-800);font-weight:700;';
+      lineStyle   = 'background:var(--gray-200);';
+    } else if (stepState === 'cancelled-step') {
+      circleStyle = 'background:var(--gray-200);border-color:var(--gray-200);color:var(--gray-400);';
+      titleStyle  = 'color:var(--gray-400);';
+      lineStyle   = 'background:var(--gray-200);';
+    } else {
+      circleStyle = 'background:white;border-color:var(--gray-300);color:var(--gray-400);';
+      titleStyle  = 'color:var(--gray-400);';
+      lineStyle   = 'background:var(--gray-200);';
+    }
+
+    var isLast = k === steps.length - 1;
+
+    timelineHTML += ''
+      + '<div style="display:flex;gap:16px;position:relative;'
+      + (isLast ? '' : 'padding-bottom:32px;') + '">'
+      + '  <div style="display:flex;flex-direction:column;align-items:center;">'
+      + '    <div style="width:36px;height:36px;border-radius:50%;border:2px solid;'
+      + '      display:flex;align-items:center;justify-content:center;font-size:14px;'
+      + '      flex-shrink:0;z-index:1;' + circleStyle + '">'
+      + (stepState === 'completed' ? '✓' : step.icon)
+      + '    </div>'
+      + (isLast ? '' : '<div style="width:2px;flex:1;margin-top:4px;' + lineStyle + '"></div>')
+      + '  </div>'
+      + '  <div style="padding-top:6px;">'
+      + '    <p style="font-size:15px;margin:0 0 2px;' + titleStyle + '">' + step.label + '</p>'
+      + '    <p style="font-size:13px;color:var(--gray-400);margin:0;">'
+      + (k === currentIndex && status !== 'cancelled'
+          ? currentStatus.message
+          : stepState === 'completed'
+            ? 'Completed'
+            : 'Waiting')
+      + '    </p>'
+      + '  </div>'
+      + '</div>';
+  }
+
+  // Build full result
+  resultEl.innerHTML = ''
+    // Header
+    + '<div class="tracking-result-header">'
+    + '  <span class="tracking-result-id">' + order.id + '</span>'
+    + '  <span class="tracking-result-date">' + dateString + ' at ' + timeString + '</span>'
+    + '</div>'
+
+    // Status banner
+    + '<div style="padding:16px 20px;display:flex;align-items:center;gap:12px;'
+    + '  background:' + currentStatus.background + ';border-bottom:1px solid var(--gray-200);">'
+    + '  <span style="font-size:24px;">' + currentStatus.icon + '</span>'
+    + '  <div>'
+    + '    <p style="font-size:15px;font-weight:700;color:' + currentStatus.color + ';margin:0 0 2px;">'
+    +        currentStatus.label
+    + '    </p>'
+    + '    <p style="font-size:13px;color:var(--gray-600);margin:0;">'
+    +        currentStatus.message
+    + '    </p>'
+    + '  </div>'
+    + '</div>'
+
+    // Timeline
+    + '<div style="padding:24px 20px;">'
+    +    timelineHTML
+    + '</div>'
+
+    // Order details
+    + '<div style="padding:0 20px 16px;border-top:1px solid var(--gray-200);">'
+    + '  <p style="font-size:13px;font-weight:600;color:var(--gray-800);padding:16px 0 8px;">Order Details</p>'
+    +    itemsHTML
+    + '  <div style="display:flex;justify-content:space-between;padding:12px 0 0;'
+    + '    border-top:1px solid var(--gray-100);margin-top:8px;">'
+    + '    <span style="font-size:14px;font-weight:600;color:var(--gray-800)">Subtotal</span>'
+    + '    <span style="font-size:14px;font-weight:700;color:var(--gray-900)">'
+    +        Cart.formatPrice(order.summary.subtotal)
+    + '    </span>'
+    + '  </div>'
+    + '  <div style="display:flex;justify-content:space-between;padding:4px 0;">'
+    + '    <span style="font-size:12px;color:var(--gray-400)">Shipping</span>'
+    + '    <span style="font-size:12px;color:var(--gray-400);font-style:italic">Confirmed on WhatsApp</span>'
+    + '  </div>'
+    + '</div>'
+
+    // Delivery info
+    + '<div style="padding:16px 20px;border-top:1px solid var(--gray-200);background:var(--gray-50);">'
+    + '  <p style="font-size:13px;font-weight:600;color:var(--gray-800);margin:0 0 12px;">Delivery Location</p>'
+    + '  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+    + '    <div>'
+    + '      <p style="font-size:11px;color:var(--gray-400);margin:0 0 2px;text-transform:uppercase;">Name</p>'
+    + '      <p style="font-size:13px;color:var(--gray-700);margin:0;">' + order.customer.name + '</p>'
+    + '    </div>'
+    + '    <div>'
+    + '      <p style="font-size:11px;color:var(--gray-400);margin:0 0 2px;text-transform:uppercase;">Phone</p>'
+    + '      <p style="font-size:13px;color:var(--gray-700);margin:0;">' + order.customer.phone + '</p>'
+    + '    </div>'
+    + '    <div>'
+    + '      <p style="font-size:11px;color:var(--gray-400);margin:0 0 2px;text-transform:uppercase;">State</p>'
+    + '      <p style="font-size:13px;color:var(--gray-700);margin:0;">' + order.customer.state + '</p>'
+    + '    </div>'
+    + '    <div>'
+    + '      <p style="font-size:11px;color:var(--gray-400);margin:0 0 2px;text-transform:uppercase;">City</p>'
+    + '      <p style="font-size:13px;color:var(--gray-700);margin:0;">' + order.customer.city + '</p>'
+    + '    </div>'
+    + (order.customer.landmark
+        ? '<div style="grid-column:span 2;">'
+        + '  <p style="font-size:11px;color:var(--gray-400);margin:0 0 2px;text-transform:uppercase;">Landmark</p>'
+        + '  <p style="font-size:13px;color:var(--gray-700);margin:0;">' + order.customer.landmark + '</p>'
+        + '</div>'
+        : '')
+    + '  </div>'
+    + '</div>'
+
+    // Footer
+    + '<div class="tracking-result-footer">'
+    + '  <div class="tracking-whatsapp-note">'
+    + '    <span>💬</span>'
+    + '    <span>For updates contact us on WhatsApp</span>'
+    + '  </div>'
+    + '  <div class="tracking-result-actions">'
+    + '    <a href="https://wa.me/2347038820430" target="_blank"'
+    + '       class="btn btn-primary btn-sm">Ask on WhatsApp</a>'
+    + '    <a href="products.html"'
+    + '       class="btn btn-outline btn-sm">Continue Shopping</a>'
+    + '  </div>'
+    + '</div>';
+}
 
 };
 
