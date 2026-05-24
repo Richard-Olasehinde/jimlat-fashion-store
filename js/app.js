@@ -13,6 +13,7 @@ const App = {
   Cart.init();
   this.initHeader();
   this.initCartSidebar();
+  this.initSwipeClose();
 
   // Initialize Firebase Auth
   AuthManager.init();
@@ -3211,6 +3212,68 @@ updateAuthAvatar() {
     });
   }
 },
+ initSwipeClose() {
+  var filtersSidebar = document.getElementById('filtersSidebar');
+  var cartSidebar    = document.getElementById('cartSidebar');
+  var mainNav        = document.getElementById('mainNav');
+
+  var self = this;
+
+  // Swipe LEFT to close filters and menu (they open from left)
+  if (filtersSidebar) {
+    this.addSwipeClose(filtersSidebar, 'left', function() {
+      filtersSidebar.classList.remove('open');
+      document.getElementById('overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  }
+
+  if (mainNav) {
+    this.addSwipeClose(mainNav, 'left', function() {
+      self.closeMenu();
+    });
+  }
+
+  // Swipe RIGHT to close cart sidebar (it opens from right)
+  if (cartSidebar) {
+    this.addSwipeClose(cartSidebar, 'right', function() {
+      self.closeCartSidebar();
+    });
+  }
+},
+
+addSwipeClose(element, direction, callback) {
+  var startX = 0;
+  var startY = 0;
+
+  element.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  });
+
+  element.addEventListener('touchend', function(e) {
+    var endX = e.changedTouches[0].clientX;
+    var endY = e.changedTouches[0].clientY;
+
+    var diffX = startX - endX;
+    var diffY = startY - endY;
+
+    // Only register horizontal swipes
+    // Ignore if vertical movement is bigger
+    if (Math.abs(diffX) < 50) return;
+    if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+    if (direction === 'left' && diffX > 0) {
+      // Swiped left
+      callback();
+    }
+
+    if (direction === 'right' && diffX < 0) {
+      // Swiped right
+      callback();
+    }
+  });
+ }
 
 };
 
