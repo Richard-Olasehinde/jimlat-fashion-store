@@ -959,6 +959,8 @@ p {
   /* Start off screen to the right */
   transform: translateX(120%);
   transition: transform var(--transition-base);
+  position: relative;
+  overflow: hidden;
 }
 
 /* Slides in when .show added by JS */

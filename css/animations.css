@@ -1,0 +1,545 @@
+/* ============================================
+   PAGE LOAD
+   Entire page fades in smoothly
+   ============================================ */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+body {
+  animation: pageFadeIn 0.4s ease forwards;
+}
+
+/* ============================================
+   SKELETON SHIMMER
+   Loading placeholder animation
+   ============================================ */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--gray-200) 25%,
+    var(--gray-100) 50%,
+    var(--gray-200) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* ============================================
+   PRODUCT CARD HOVER
+   Smoother lift and shadow
+   ============================================ */
+.product-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.product-card-image img {
+  transition: transform 0.4s ease;
+}
+
+.product-card-actions {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+/* ============================================
+   BUTTONS
+   Smooth hover and click
+   ============================================ */
+.btn {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.add-to-cart-btn {
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* ============================================
+   NAVIGATION LINKS
+   Quick color change
+   ============================================ */
+.nav-link {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* ============================================
+   SIDEBAR SLIDES
+   Smoother open/close
+   ============================================ */
+.cart-sidebar {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-nav {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   OVERLAY
+   Smooth fade
+   ============================================ */
+.overlay {
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+/* ============================================
+   SEARCH OVERLAY
+   Slide down smoothly
+   ============================================ */
+.search-overlay {
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease,
+    transform 0.25s ease;
+}
+
+/* ============================================
+   FORM INPUTS
+   Focus ring appears smoothly
+   ============================================ */
+.form-input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ============================================
+   NOTIFICATION SLIDE
+   Slide in from right
+   ============================================ */
+.notification {
+  transition: transform 0.3s ease;
+}
+
+/* ============================================
+   NOTIFICATION PROGRESS BAR
+   Shows time remaining before auto dismiss
+   ============================================ */
+@keyframes notificationCountdown {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 0 0 8px 8px;
+  animation: notificationCountdown 3s linear forwards;
+}
+
+.notification-success .notification-progress {
+  background: var(--success);
+}
+
+.notification-error .notification-progress {
+  background: var(--error);
+}
+
+.notification-warning .notification-progress {
+  background: var(--warning);
+}
+
+.notification-info .notification-progress {
+  background: var(--info);
+}
+
+/* ============================================
+   BACK TO TOP
+   Smooth appear and hover
+   ============================================ */
+.back-to-top {
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    transform 0.3s ease,
+    background-color 0.2s ease;
+}
+
+/* ============================================
+   QUICK VIEW MODAL
+   Fade in and slide up
+   ============================================ */
+.quick-view-modal {
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+}
+
+.quick-view-content {
+  transition: transform 0.3s ease;
+}
+
+/* ============================================
+   AUTH MODAL
+   Fade in and slide up
+   ============================================ */
+.auth-modal {
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+}
+
+.auth-modal-content {
+  transition: transform 0.3s ease;
+}
+
+/* ============================================
+   FAQ ACCORDION
+   Smooth open and close
+   ============================================ */
+.faq-answer {
+  transition: max-height 0.4s ease;
+}
+
+.faq-chevron {
+  transition: transform 0.3s ease;
+}
+
+/* ============================================
+   TAB CONTENT
+   Fade in when tab switches
+   ============================================ */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-content.active {
+  animation: tabFadeIn 0.2s ease forwards;
+}
+
+/* ============================================
+   CATEGORY CARDS
+   Smooth image zoom
+   ============================================ */
+.category-card img {
+  transition: transform 0.4s ease;
+}
+
+/* ============================================
+   HEADER ICON BUTTONS
+   Smooth hover background
+   ============================================ */
+.header-icon-btn {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* ============================================
+   CONTACT CARDS
+   Smooth hover
+   ============================================ */
+.contact-card {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ============================================
+   ABOUT VALUE CARDS
+   Smooth hover lift
+   ============================================ */
+.about-value-card {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.about-offer-item {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* ============================================
+   WHY CHOOSE US CARDS
+   Smooth hover lift
+   ============================================ */
+.why-item {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* ============================================
+   FILTER OPTIONS
+   Smooth active state
+   ============================================ */
+.filter-option {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* ============================================
+   TOGGLE SWITCH
+   Smooth slide
+   ============================================ */
+.toggle-slider {
+  transition: background-color 0.2s ease;
+}
+
+.toggle-slider::after {
+  transition: transform 0.2s ease;
+}
+
+/* ============================================
+   SORT SELECT
+   Smooth focus
+   ============================================ */
+.sort-select {
+  transition: border-color 0.2s ease;
+}
+
+/* ============================================
+   VIEW TOGGLE BUTTONS
+   Smooth active state
+   ============================================ */
+.view-btn {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* ============================================
+   FILTER TAGS
+   ============================================ */
+.filter-tag-remove {
+  transition: color 0.15s ease;
+}
+
+/* ============================================
+   WISHLIST HEART BUTTON
+   Smooth state change
+   ============================================ */
+.product-action-btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* ============================================
+   PROMO CARDS
+   Image zoom on hover
+   ============================================ */
+.promo-card::before {
+  transition: opacity 0.3s ease;
+}
+
+/* ============================================
+   SOCIAL LINKS
+   Smooth hover
+   ============================================ */
+.social-link {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* ============================================
+   FOOTER LINKS
+   Smooth hover
+   ============================================ */
+.footer-links a {
+  transition: color 0.15s ease;
+}
+
+.footer-contact a {
+  transition: color 0.15s ease;
+}
+
+/* ============================================
+   HERO DOTS
+   Smooth active state
+   ============================================ */
+.hero-dot {
+  transition:
+    background-color 0.3s ease,
+    width 0.3s ease;
+}
+
+/* ============================================
+   HERO ARROWS
+   Smooth hover
+   ============================================ */
+.hero-arrow {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* ============================================
+   CART ITEM IMAGE
+   Subtle zoom
+   ============================================ */
+.cart-item-image img {
+  transition: transform 0.3s ease;
+}
+
+.cart-page-item-image img {
+  transition: transform 0.3s ease;
+}
+
+/* ============================================
+   CART REMOVE BUTTON
+   Smooth hover color
+   ============================================ */
+.cart-item-remove {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.cart-page-item-remove {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* ============================================
+   GALLERY THUMBNAIL
+   Smooth border change
+   ============================================ */
+.gallery-thumb {
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* ============================================
+   COLOR AND SIZE OPTIONS
+   Smooth selection
+   ============================================ */
+.color-option {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.size-option {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* ============================================
+   WISHLIST BUTTON ON DETAIL PAGE
+   ============================================ */
+.wishlist-btn {
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* ============================================
+   FAQ TAB BUTTONS
+   ============================================ */
+.faq-tab {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* ============================================
+   FAQ ITEM BORDER
+   ============================================ */
+.faq-item {
+  transition: border-color 0.2s ease;
+}
+
+.faq-question {
+  transition: background-color 0.15s ease;
+}
+
+/* ============================================
+   ANNOUNCEMENT BAR CLOSE
+   ============================================ */
+.announcement-close {
+  transition: opacity 0.15s ease;
+}
+
+/* ============================================
+   QUANTITY BUTTONS
+   ============================================ */
+.quantity-btn {
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.quantity-btn-lg {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* ============================================
+   SEARCH RESULT ITEMS
+   ============================================ */
+.search-result-item {
+  transition: background-color 0.15s ease;
+}
+
+/* ============================================
+   NOT FOUND LINKS
+   ============================================ */
+.not-found-link {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* ============================================
+   LOGO
+   ============================================ */
+.logo {
+  transition: opacity 0.2s ease;
+}
+
+.logo:hover {
+  opacity: 0.85;
+}

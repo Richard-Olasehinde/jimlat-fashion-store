@@ -224,52 +224,50 @@ const Cart = {
     window.open(url, '_blank');
   },
 
-  showNotification(message, type) {
-    if (type === undefined) type = 'info';
+showNotification(message, type) {
+  if (type === undefined) type = 'info';
 
-    var container = document.querySelector('.notification-container');
+  var container = document.querySelector('.notification-container');
 
-    if (!container) {
-      container = document.createElement('div');
-      container.className = 'notification-container';
-      document.body.appendChild(container);
-    }
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'notification-container';
+    document.body.appendChild(container);
+  }
 
-    var notification = document.createElement('div');
-    notification.className = 'notification notification-' + type;
-    notification.innerHTML = '<div class="notification-content">' +
-      '<span class="notification-icon">' + this.getNotificationIcon(type) + '</span>' +
-      '<span class="notification-message">' + message + '</span>' +
-      '</div>' +
-      '<button class="notification-close">×</button>';
+  var notification = document.createElement('div');
+  notification.className = 'notification notification-' + type;
+  notification.innerHTML = ''
+    + '<div class="notification-content">'
+    + '  <span class="notification-icon">' + this.getNotificationIcon(type) + '</span>'
+    + '  <span class="notification-message">' + message + '</span>'
+    + '</div>'
+    + '<button class="notification-close">×</button>'
+    + '<div class="notification-progress"></div>';
 
-    var closeBtn = notification.querySelector('.notification-close');
-    var self = this;
+  var closeBtn = notification.querySelector('.notification-close');
 
-    closeBtn.addEventListener('click', function() {
-      self.dismissNotification(notification);
-    });
-
-    container.appendChild(notification);
-
-    setTimeout(function() {
-      notification.classList.add('show');
-    }, 10);
-
-    setTimeout(function() {
-      self.dismissNotification(notification);
-    }, 3000);
-  },
-
-  dismissNotification(notification) {
-    notification.classList.remove('show');
-
-    setTimeout(function() {
+  closeBtn.addEventListener('click', function() {
+     notification.classList.remove('show');
+     setTimeout(function() {
       if (notification.parentElement) {
-        notification.remove();
-      }
-    }, 300);
-  },
+      notification.remove();
+    } }, 300);
+  });
+
+  container.appendChild(notification);
+
+  setTimeout(function() {
+    notification.classList.add('show');
+  }, 10);
+
+   setTimeout(function() {
+    notification.classList.remove('show');
+      setTimeout(function() {if (notification.parentElement) {
+      notification.remove();
+    } }, 300);
+  }, 3000);
+},
 
   getNotificationIcon(type) {
     if (type === 'success') return '✓';
